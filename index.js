@@ -183,7 +183,7 @@ app.get("/tenant-meter-details", (req, res) => {
         [ Bill_ID ],
         (err, result) => {
             if (err) return res.status(500).send()
-            if (result.length === 0) return res.status(404).send()
+            if (result.length === 0) return res.send({ isInitialRecord: true })
 
             const Meter_No = result.length > 0 && result[0].Meter_No
     
@@ -195,7 +195,8 @@ app.get("/tenant-meter-details", (req, res) => {
                     if (err) return res.status(500).send()
                     res.send({
                         Meter_No,
-                        ...result[0]
+                        ...result[0],
+                        isInitialRecord: false
                     })
                 }
             )

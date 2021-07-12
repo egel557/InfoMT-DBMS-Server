@@ -78,7 +78,7 @@ app.post("/main_records/new", (req, res) => {
 
 app.get("/tenants", (req, res) => {
     db.query(
-        "SELECT * FROM tenants",
+        "SELECT * FROM tenant_t, storetype_t WHERE tenant_t.StoreType_ID = storetype_t.StoreType_ID",
         (err, result) => {
             if(err) return res.status(500).send(err)
             res.send(result.map(row => {
@@ -95,6 +95,38 @@ app.get("/tenants", (req, res) => {
 // INSERT INTO `tenant_t`
 // VALUES (NULL, ?, ?, ?, '1', ?);
 // -- ? means input from variable --> (Name, StoreType_ID, Floor, Creation_Date) [In-order]
+
+app.post("/tenants/new", (req, res) => {
+    const { Name, StoreType_ID, Floor } = req.body
+
+    db.query(
+        "INSERT INTO tenant_t (Tenant_ID, Name, StoreType_ID, Floor) VALUES (NULL, ?, ?, ?)",
+        [ Name, StoreType_ID, Floor ],
+        (err, result) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send()
+            } 
+            res.send(result)
+        }
+    )
+})
+
+app.post("/tenants/edit", (req, res) => {
+    const { Tenant_ID, Name, StoreType_ID, Floor, Status } = req.body
+
+    db.query(
+        "UPDATE tenant_t SET Name = ?, StoreType_ID = ?, Floor = ?, Status = ? WHERE Tenant_ID = ?",
+        [ Name, StoreType_ID, Floor, Status, Tenant_ID ],
+        (err, result) => {
+            if (err) {
+                console.log(err)
+                return res.status(500).send()
+            } 
+            res.send(result)
+        }
+    )
+})
 
 app.get("/type-tenants", (req, res) => {
     const { type } = req.query

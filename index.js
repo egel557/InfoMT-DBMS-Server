@@ -9,6 +9,11 @@ const PORT = 5000
 app.use(cors())
 app.use(express.json())
 
+db.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+    if (error) throw error;
+    else console.log("Connected to Database!")
+});
+
 
 app.get("/main_records", (req, res) => {
     const { month="All", year="All", type } =  req.query
@@ -22,7 +27,10 @@ app.get("/main_records", (req, res) => {
         `SELECT * FROM ${table} WHERE Period_End LIKE ? ORDER BY Period_End DESC ;`, 
         [ period_end ],
         (err,result) => {
-            if(err) console.log(err)
+            if(err) {
+                console.log(err)
+                return res.status(500).send()
+            }
             res.send(result.map(row => {
                 return {
                     ...row,
@@ -72,7 +80,7 @@ app.get("/tenants", (req, res) => {
     db.query(
         "SELECT * FROM tenants",
         (err, result) => {
-            if(err) res.status(500).send(err)
+            if(err) return res.status(500).send(err)
             res.send(result.map(row => {
                 return {
                     ...row,
@@ -82,6 +90,11 @@ app.get("/tenants", (req, res) => {
         }
     )
 })
+// todo:
+
+// INSERT INTO `tenant_t`
+// VALUES (NULL, ?, ?, ?, '1', ?);
+// -- ? means input from variable --> (Name, StoreType_ID, Floor, Creation_Date) [In-order]
 
 app.get("/type-tenants", (req, res) => {
     const { type } = req.query
@@ -200,6 +213,16 @@ app.get("/tenant-meter-details", (req, res) => {
                     })
                 }
             )
+        }
+    )
+})
+
+app.get("/storetypes", (req, res) => {
+    db.query(
+        "SELECT * FROM storetype_t",
+        (err, result) => {
+            if (err) res.status(500).send()
+            res.send(result)
         }
     )
 })
